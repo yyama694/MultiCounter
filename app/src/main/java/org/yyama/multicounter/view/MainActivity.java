@@ -1,0 +1,253 @@
+package org.yyama.multicounter.view;
+
+import android.app.ActionBar;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.PopupMenu;
+import android.widget.TextView;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.DialogFragment;
+
+import com.google.android.material.appbar.AppBarLayout;
+
+import org.yyama.multicounter.R;
+import org.yyama.multicounter.dao.CounterGroupsDao;
+import org.yyama.multicounter.model.Counter;
+import org.yyama.multicounter.model.CounterGroup;
+import org.yyama.multicounter.model.CounterGroups;
+
+import java.lang.reflect.Method;
+
+public class MainActivity extends AppCompatActivity implements MultiCounterActivity {
+
+    private CounterGroups counterGroups;
+
+    public CounterGroups getCounterGroups() {
+        return counterGroups;
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        // データロード＆初期化
+        counterGroups = (CounterGroups) getIntent().getSerializableExtra("counterGroups");
+        if (counterGroups == null) {
+            counterGroups = CounterGroupsDao.loadAll();
+        }
+        // ペイント
+        MainActivityPainter.paintAll(this);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        setTitle(counterGroups.getCurrentCounterGroup().getTitle());
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Log.d("counter", "onSupport");
+        Intent i = new Intent(this, GroupListActivity.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.putExtra("counterGroups", counterGroups);
+        startActivity(i);
+        finish();
+        return super.onSupportNavigateUp();
+    }
+
+    // カウンター追加
+    @Override
+    public void onClickDialogAddButton(String title) {
+        counterGroups.getCurrentCounterGroup().addCounter(title);
+        MainActivityPainter.paintAll(this);
+    }
+
+    // プラスボタンクリック
+    public void onClickBtnPlus(View view) {
+        final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
+        Counter counter = cg.findByid((String) ((View) view.getParent().getParent()).getTag());
+        counter.increment();
+        TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
+        textView.setText(String.valueOf(counter.getNum()));
+    }
+
+    // マイナスボタンクリック
+    public void onClickBtnMinus(View view) {
+        final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
+        Counter counter = cg.findByid((String) ((View) view.getParent().getParent()).getTag());
+        counter.decrement();
+        TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
+        textView.setText(String.valueOf(counter.getNum()));
+    }
+
+    // カウンター追加ボタンクリック
+    public void onClickAddBtn(View view) {
+        DialogFragment df = new AddCounterDialog();
+        Bundle args = new Bundle();
+        args.putString("title", "title (Counter)");
+        df.setArguments(args);
+        df.show(getSupportFragmentManager(), "aa");
+    }
+
+    // カウンタメニュークリック
+    public void onClickMenu(View view) {
+        final PopupMenu counterMenuPopup = new PopupMenu(this, view);
+        counterMenuPopup.inflate(R.menu.counter_menu);
+        MenuItem menuItem = counterMenuPopup.getMenu().findItem(R.id.counter_menu_delete);
+        menuItem.setActionView(view);
+        MenuItem menuItem2 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_reset);
+        menuItem2.setActionView(view);
+        MenuItem menuItem3 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_set_number);
+        menuItem3.setActionView(view);
+        MenuItem menuItem4 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_change_name);
+        menuItem4.setActionView(view);
+        MenuItem menuItem5 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_start_recording);
+        menuItem5.setActionView(view);
+        MenuItem menuItem6 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_stop_recording);
+        menuItem6.setActionView(view);
+        // ポップアップのメニューを出すための記述
+        try {
+            Method method = counterMenuPopup.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            method.setAccessible(true);
+            method.invoke(counterMenuPopup.getMenu(), true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // 記録開始・停止メニューの操作可否判定
+        String counterId = (String) ((View) view.getParent().getParent()).getTag();
+        boolean b = counterGroups.getCurrentCounterGroup().findByid(counterId).isRecording();
+        if (b) {
+            counterMenuPopup.getMenu().findItem(R.id.counter_menu_start_recording).setVisible(false);
+            counterMenuPopup.getMenu().findItem(R.id.counter_menu_stop_recording).setVisible(true);
+        } else {
+            counterMenuPopup.getMenu().findItem(R.id.counter_menu_start_recording).setVisible(true);
+            counterMenuPopup.getMenu().findItem(R.id.counter_menu_stop_recording).setVisible(false);
+        }
+        counterMenuPopup.show();
+    }
+
+    // カウンターメニューの削除クリック
+    public void onClickDeleteMenu(final MenuItem menuItem) {
+        final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("削除してよろしいですか？").setTitle("削除確認").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
+                cg.deleteCounter(tag);
+                MainActivityPainter.deleteCounter(MainActivity.this, tag);
+                AppBarLayout appBarLayout = findViewById(R.id.appBar);
+                appBarLayout.setExpanded(true,true);
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
+    }
+
+    // カウンターメニューのリセットクリック
+    public void onClickResetMenu(final MenuItem menuItem) {
+        final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setMessage("値をリセットします。よろしいですか？").setTitle("リセット確認").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
+                Counter c = cg.findByid(tag);
+                c.reset();
+                TextView textView = ((View) menuItem.getActionView().getParent().getParent()).findViewById(R.id.counter_num);
+                textView.setText(String.valueOf(c.getNum()));
+            }
+        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            }
+        });
+        builder.show();
+    }
+
+    // カウンターメニューの値の設定クリック
+    public void onClickSetNumber(final MenuItem menuItem) {
+        SetNumberDialog df = new SetNumberDialog();
+        Bundle args = new Bundle();
+        args.putString("id", (String) ((View) menuItem.getActionView().getParent().getParent()).getTag());
+        df.setArguments(args);
+        df.show(getSupportFragmentManager(), "aa");
+    }
+
+    // 値を設定ダイアログのOKボタンクリック
+    public void onClickSetNumberDialogOkButton(String id, int number) {
+        CounterGroup cg = counterGroups.getCurrentCounterGroup();
+        Counter c = cg.findByid(id);
+        c.setNum(number);
+        MainActivityPainter.setNumber(this, id, number);
+    }
+
+    // 名前の変更メニュークリック
+    public void onClickChangeName(final MenuItem menuItem) {
+        ChangeCounterNameDialog df = new ChangeCounterNameDialog();
+        Bundle args = new Bundle();
+        String id = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
+        args.putString("id", id);
+        args.putString("beforeName", counterGroups.getCurrentCounterGroup().findByid(id).getTitle());
+        df.setArguments(args);
+        df.show(getSupportFragmentManager(), "aa");
+    }
+
+    @Override
+    public void changeName(String id, String newName) {
+        // model の変更
+        counterGroups.getCurrentCounterGroup().findByid(id).setTitle(newName);
+
+        // view の変更
+        MainActivityPainter.reloadName(this, id, newName);
+    }
+
+    // 記録を開始するメニュークリック
+    public void onClickStartRecording(final MenuItem menuItem) {
+        String counterId = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
+        Counter c = counterGroups.getCurrentCounterGroup().findByid(counterId);
+        c.startRecording();
+    }
+
+    // 記録を停止するメニュークリック
+    public void onClickStopRecording(final MenuItem menuItem) {
+        String counterId = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
+        Counter c = counterGroups.getCurrentCounterGroup().findByid(counterId);
+        c.stopRecording();
+    }
+}

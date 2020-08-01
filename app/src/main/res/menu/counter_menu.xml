@@ -1,0 +1,44 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.yyama.multicounter.view.MainActivity">
+
+    <item
+        android:id="@+id/counter_menu_delete"
+        android:onClick="onClickDeleteMenu"
+        android:orderInCategory="100"
+        android:title="削除"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_reset"
+        android:onClick="onClickResetMenu"
+        android:orderInCategory="100"
+        android:title="リセット"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_set_number"
+        android:onClick="onClickSetNumber"
+        android:orderInCategory="100"
+        android:title="値を設定"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_change_name"
+        android:onClick="onClickChangeName"
+        android:orderInCategory="100"
+        android:title="名前を変更"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_start_recording"
+        android:icon="@drawable/ic_fiber_manual_record_24dp"
+        android:onClick="onClickStartRecording"
+        android:orderInCategory="100"
+        android:title="記録を開始する"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_stop_recording"
+        android:icon="@drawable/ic_pause_24dp"
+        android:onClick="onClickStopRecording"
+        android:orderInCategory="100"
+        android:title="記録を停止する"
+        app:showAsAction="never" />
+</menu>

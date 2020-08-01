@@ -1,0 +1,17 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.yyama.multicounter.view.MainActivity">
+    <item
+        android:id="@+id/counter_group_menu_delete"
+        android:onClick="OnClickDeleteMenu"
+        android:orderInCategory="100"
+        android:title="削除"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_group_menu_change_name"
+        android:onClick="onClickChangeName"
+        android:orderInCategory="100"
+        android:title="名前を変更"
+        app:showAsAction="never" />
+</menu>
