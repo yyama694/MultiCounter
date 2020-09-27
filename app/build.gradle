@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField 'String','PRIVACY_POLICY_URL',PRIVACY_POLICY_URL
+
     }
     buildTypes {
         release {

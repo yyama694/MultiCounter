@@ -1,5 +1,7 @@
 package org.yyama.multicounter.model;
 
+import android.util.Log;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -12,7 +14,7 @@ public class CounterGroups implements Serializable {
 
     private String currentGroupId;
 
-    public void setCounterGroupList(List<CounterGroup> counterGroupList) {
+    public CounterGroups(List<CounterGroup> counterGroupList) {
         this.counterGroupList = counterGroupList;
     }
 
@@ -26,6 +28,10 @@ public class CounterGroups implements Serializable {
 
     public CounterGroup getCurrentCounterGroup() {
         for (int i = 0; i < counterGroupList.size(); i++) {
+            Log.d("counter","debug i :"+i);
+            Log.d("counter","debug:"+counterGroupList.get(i));
+            Log.d("counter","debug:"+counterGroupList.get(i).getId());
+
             if (counterGroupList.get(i).getId().equals(currentGroupId)) {
                 return counterGroupList.get(i);
             }

@@ -1,5 +1,7 @@
 package org.yyama.multicounter.model;
 
+import org.yyama.multicounter.dao.CounterDao;
+
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.List;
@@ -25,9 +27,10 @@ public class CounterGroup implements Serializable {
     }
 
     private String title;
-    private long order;
 
-    public CounterGroup(List<Counter> counterGroup) {
+    public CounterGroup(String id, String title, List<Counter> counterGroup) {
+        this.id = id;
+        this.title = title;
         this.counterGroup = counterGroup;
     }
 
@@ -46,12 +49,8 @@ public class CounterGroup implements Serializable {
         return result;
     }
 
-    public void addCounter(String title) {
-        Counter c = new Counter();
-        c.setId(CounterId.nextId());
-        c.setTitle(title);
-        c.setNum(0);
-        c.setLastUpdateDateTime(Calendar.getInstance());
+    public void addCounter(String title, CounterDao dao) {
+        Counter c = new Counter(dao.getNextId(), title, 1, "", false, Calendar.getInstance());
         counterGroup.add(c);
     }
 
@@ -66,10 +65,10 @@ public class CounterGroup implements Serializable {
 
     public Calendar getCounterLastUpdateDateTime() {
         Calendar result = Calendar.getInstance();
-        result.set(0,0,0,0,0,0);
+        result.set(0, 0, 0, 0, 0, 0);
         for (int i = 0; i < counterGroup.size(); i++) {
             Counter c = counterGroup.get(i);
-            if(result.compareTo(c.getLastUpdateDateTime()) < 0) {
+            if (result.compareTo(c.getLastUpdateDateTime()) < 0) {
                 result = c.getLastUpdateDateTime();
             }
         }

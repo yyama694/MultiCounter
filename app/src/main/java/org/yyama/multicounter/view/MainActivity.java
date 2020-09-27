@@ -1,11 +1,12 @@
 package org.yyama.multicounter.view;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,8 +19,11 @@ import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.appbar.AppBarLayout;
 
+import org.yyama.multicounter.BuildConfig;
 import org.yyama.multicounter.R;
+import org.yyama.multicounter.dao.CounterDao;
 import org.yyama.multicounter.dao.CounterGroupsDao;
+import org.yyama.multicounter.dao.DBHelper;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
@@ -29,6 +33,8 @@ import java.lang.reflect.Method;
 public class MainActivity extends AppCompatActivity implements MultiCounterActivity {
 
     private CounterGroups counterGroups;
+    private CounterDao counterDao;
+    CounterGroupsDao counterGroupsDao;
 
     public CounterGroups getCounterGroups() {
         return counterGroups;
@@ -41,11 +47,14 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        // データロード＆初期化
+        // SQLite初期設定
+        DBHelper helper = new DBHelper(this);
+        counterGroupsDao = new CounterGroupsDao(helper);
+        counterDao = new CounterDao(helper);
+
+        // データロード
         counterGroups = (CounterGroups) getIntent().getSerializableExtra("counterGroups");
-        if (counterGroups == null) {
-            counterGroups = CounterGroupsDao.loadAll();
-        }
+
         // ペイント
         MainActivityPainter.paintAll(this);
 
@@ -69,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Uri uri = Uri.parse(BuildConfig.PRIVACY_POLICY_URL);
+            Intent i = new Intent(Intent.ACTION_VIEW,uri);
+            startActivity(i);
             return true;
         }
 
@@ -77,19 +89,19 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
 
     @Override
     public boolean onSupportNavigateUp() {
-        Log.d("counter", "onSupport");
+        Log.d("counter", "MainActivity#onSupportNavigateUp");
         Intent i = new Intent(this, GroupListActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        i.putExtra("counterGroups", counterGroups);
-        startActivity(i);
+        i.putExtra("initial", false);
         finish();
+        startActivity(i);
         return super.onSupportNavigateUp();
     }
 
     // カウンター追加
     @Override
     public void onClickDialogAddButton(String title) {
-        counterGroups.getCurrentCounterGroup().addCounter(title);
+        counterGroups.getCurrentCounterGroup().addCounter(title, counterDao);
         MainActivityPainter.paintAll(this);
     }
 
@@ -169,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 cg.deleteCounter(tag);
                 MainActivityPainter.deleteCounter(MainActivity.this, tag);
                 AppBarLayout appBarLayout = findViewById(R.id.appBar);
-                appBarLayout.setExpanded(true,true);
+                appBarLayout.setExpanded(true, true);
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
@@ -249,5 +261,29 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         String counterId = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
         Counter c = counterGroups.getCurrentCounterGroup().findByid(counterId);
         c.stopRecording();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("counter", "MainActivity#onStop");
+    }
+
+    @Override
+    protected void onPause() {
+        counterGroupsDao.saveAll(counterGroups);
+        super.onPause();
+        Log.d("counter", "MainActivity#onPause");
+    }
+
+    // Back キーは　戻る（←）と同じ挙動とする。
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode != KeyEvent.KEYCODE_BACK) {
+            return super.onKeyDown(keyCode, event);
+        } else {
+            onSupportNavigateUp();
+            return false;
+        }
     }
 }

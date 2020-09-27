@@ -3,8 +3,10 @@ package org.yyama.multicounter.view;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -15,13 +17,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
+import org.yyama.multicounter.BuildConfig;
 import org.yyama.multicounter.R;
+import org.yyama.multicounter.dao.CounterDao;
 import org.yyama.multicounter.dao.CounterGroupsDao;
+import org.yyama.multicounter.dao.DBHelper;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
-import org.yyama.multicounter.model.CounterGroupId;
 import org.yyama.multicounter.model.CounterGroups;
-import org.yyama.multicounter.model.CounterId;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -31,24 +34,33 @@ import java.util.List;
 public class GroupListActivity extends AppCompatActivity implements MultiCounterActivity {
 
     private CounterGroups counterGroups;
+    private CounterDao counterDao;
+    CounterGroupsDao counterGroupsDao;
 
-    private boolean pass;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d("counter","onCreate");
+        Log.d("counter", "GroupListActivity#onCreate");
         super.onCreate(savedInstanceState);
-        counterGroups = (CounterGroups) getIntent().getSerializableExtra("counterGroups");
-        if (counterGroups == null) {
-            Intent i = new Intent(GroupListActivity.this, MainActivity.class);
-            i.putExtra("counterGroups", counterGroups);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            Uri uri = Uri.parse(BuildConfig.PRIVACY_POLICY_URL);
+            Intent i = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(i);
-            pass=true;
-            return;
+            return true;
         }
-        setContentView(R.layout.activity_goup_list);
-        Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        paintAll();
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void paintAll() {
@@ -59,7 +71,6 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
             LinearLayout v = (LinearLayout) getLayoutInflater().inflate(R.layout.content_group_list_line, null);
             TextView title = v.findViewById(R.id.group_list_line_title);
             title.setText(cg.getTitle());
-            TextView lastUpdate = v.findViewById(R.id.group_list_last_update);
             v.setTag(cg.getId());
             ll.addView(v);
             LinearLayout v2 = (LinearLayout) getLayoutInflater().inflate(R.layout.border, null);
@@ -76,16 +87,10 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
 
     @Override
     public void onClickDialogAddButton(String title) {
-        Counter ct = new Counter();
-        ct.setId(CounterId.nextId());
-        ct.setNum(0);
-        ct.setTitle("new Counter");
-        ct.setLastUpdateDateTime(Calendar.getInstance());
+        Counter ct = new Counter(counterDao.getNextId(), "New Counter", 0, "", false, Calendar.getInstance());
         List<Counter> list = new ArrayList<>();
         list.add(ct);
-        CounterGroup cg = new CounterGroup(list);
-        cg.setId(CounterGroupId.nextId());
-        cg.setTitle(title);
+        CounterGroup cg = new CounterGroup(counterDao.getNextGroupId(), title, list);
         counterGroups.addCounterGroup(cg);
         paintAll();
     }
@@ -99,27 +104,6 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
                 ll.removeViewAt(i);
                 break;
             }
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (pass) {
-            pass=false;
-            return;
-        }
-        if(counterGroups == null) {
-            Log.d("counter","onResume and contergroups is null.");
-
-            counterGroups = CounterGroupsDao.loadAll();
-            setContentView(R.layout.activity_goup_list) ;
-            Toolbar toolbar = findViewById(R.id.toolbar);
-            setSupportActionBar(toolbar);
-            paintAll();
-        } else {
-            Log.d("counter","onResume and contergroups is not null.");
-
         }
     }
 
@@ -153,10 +137,12 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     }
 
     // カウンターグループ選択
-    public void onClickCounterGroup(View view){
+    public void onClickCounterGroup(View view) {
         counterGroups.setCurrentGroupId((String) view.getTag());
+        counterGroupsDao.updateCurrentGroup(counterGroups.getCurrentGroupId());
         Intent i = new Intent(GroupListActivity.this, MainActivity.class);
         i.putExtra("counterGroups", counterGroups);
+        i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(i);
     }
 
@@ -173,9 +159,9 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     public void onClickChangeName(final MenuItem menuItem) {
         ChangeCounterNameDialog df = new ChangeCounterNameDialog();
         Bundle args = new Bundle();
-        String id =(String) ((View)menuItem.getActionView().getParent().getParent()).getTag();
+        String id = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
         args.putString("id", id);
-        args.putString("beforeName",counterGroups.findCounterGroupsById(id).getTitle());
+        args.putString("beforeName", counterGroups.findCounterGroupsById(id).getTitle());
         df.setArguments(args);
         df.show(getSupportFragmentManager(), "aa");
     }
@@ -191,11 +177,59 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
         for (int i = 0; i < ll.getChildCount(); i++) {
             String tag = (String) ll.getChildAt(i).getTag();
             if (id.equals(tag)) {
-                ((TextView)ll.getChildAt(i).findViewById(R.id.group_list_line_title)).setText(newName);
+                ((TextView) ll.getChildAt(i).findViewById(R.id.group_list_line_title)).setText(newName);
                 break;
             }
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d("counter", "GroupListActivity#onStart");
+        // SQLite初期設定
+        DBHelper helper = new DBHelper(this);
+        counterGroupsDao = new CounterGroupsDao(helper);
+        counterDao = new CounterDao(helper);
+        counterGroups = counterGroupsDao.loadAll(counterDao);
+        boolean initial = getIntent().getBooleanExtra("initial", true);
+        if (initial) {
+            counterGroups.setCurrentGroupId(counterGroupsDao.selectCurrentGroup());
+            Intent i = new Intent(GroupListActivity.this, MainActivity.class);
+            i.putExtra("counterGroups", counterGroups);
+            i.setFlags(Intent.FLAG_ACTIVITY_NO_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(i);
+            return;
+        }
+        setContentView(R.layout.activity_goup_list);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        paintAll();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d("counter", "GroupListActivity#onResume");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("counter", "GroupListActivity#onRestart");
+    }
+
+    @Override
+    protected void onStop() {
+        counterGroupsDao.saveAll(counterGroups);
+        super.onStop();
+        Log.d("counter", "GroupListActivity#onStop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d("counter", "GroupListActivity#onDestroy");
+    }
 
 }
