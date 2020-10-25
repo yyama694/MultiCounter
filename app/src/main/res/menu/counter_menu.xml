@@ -7,38 +7,38 @@
         android:id="@+id/counter_menu_delete"
         android:onClick="onClickDeleteMenu"
         android:orderInCategory="100"
-        android:title="削除"
+        android:title="@string/delete"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_menu_reset"
         android:onClick="onClickResetMenu"
         android:orderInCategory="100"
-        android:title="リセット"
+        android:title="@string/reset"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_menu_set_number"
         android:onClick="onClickSetNumber"
         android:orderInCategory="100"
-        android:title="値を設定"
+        android:title="@string/set_value"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_menu_change_name"
         android:onClick="onClickChangeName"
         android:orderInCategory="100"
-        android:title="名前を変更"
+        android:title="@string/rename"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_menu_start_recording"
         android:icon="@drawable/ic_fiber_manual_record_24dp"
         android:onClick="onClickStartRecording"
         android:orderInCategory="100"
-        android:title="記録を開始する"
+        android:title="@string/start_recoding"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_menu_stop_recording"
         android:icon="@drawable/ic_pause_24dp"
         android:onClick="onClickStopRecording"
         android:orderInCategory="100"
-        android:title="記録を停止する"
+        android:title="@string/stop_recoding"
         app:showAsAction="never" />
 </menu>

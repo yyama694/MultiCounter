@@ -2,19 +2,23 @@ package org.yyama.multicounter.model;
 
 import android.util.Log;
 
-
 import java.io.Serializable;
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 
 public class Counter implements Serializable {
     private String id;
+    private String groupId;
     private String title;
     private long num = 1;
     private String fileName;
-    private boolean recoding=false;
+    private boolean recording = false;
 
-    public Counter(String id, String title, long num, String fileName, boolean recording, Calendar lastUpdateDateTime) {
+    public Counter(String id, String groupId, String title, long num, String fileName, boolean recording, Calendar lastUpdateDateTime) {
         this.id = id;
+        this.groupId = groupId;
         this.title = title;
         this.num = num;
         this.fileName = fileName;
@@ -38,7 +42,6 @@ public class Counter implements Serializable {
         this.recording = recording;
     }
 
-    private boolean recording = false;
 
     public Calendar getLastUpdateDateTime() {
         return lastUpdateDateTime;
@@ -86,14 +89,17 @@ public class Counter implements Serializable {
     }
 
     public void startRecording() {
-        if(!isRecording()) {
-            Log.d("counter","start recording");
+        if (!isRecording()) {
+            Log.d("counter", "start recording");
             recording = true;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            String name = groupId + "_" + id + "_" + title + "_" + sdf.format(new Date()) + ".txt";
+            fileName = name;
         }
     }
 
     public void stopRecording() {
-        recording=false;
+        recording = false;
     }
 
     public void reset() {

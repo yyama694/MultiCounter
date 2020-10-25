@@ -6,12 +6,12 @@
         android:id="@+id/counter_group_menu_delete"
         android:onClick="OnClickDeleteMenu"
         android:orderInCategory="100"
-        android:title="削除"
+        android:title="@string/delete"
         app:showAsAction="never" />
     <item
         android:id="@+id/counter_group_menu_change_name"
         android:onClick="onClickChangeName"
         android:orderInCategory="100"
-        android:title="名前を変更"
+        android:title="@string/rename"
         app:showAsAction="never" />
 </menu>

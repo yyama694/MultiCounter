@@ -9,7 +9,7 @@
         android:id="@+id/add_counter_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="名前を入力してください。"
+        android:text="@string/enter_counter_name"
         android:textSize="20sp"></TextView>
 
     <EditText

@@ -22,11 +22,11 @@ public class CounterDao {
         return counter.getId() + "_" + counter.getTitle() + "_" + sdf.format(new Date()) + ".txt";
     }
 
-    private void outFile(Counter counter, String text) {
+    public void outFile(Counter counter, String text) {
         FileWriter fw = null;
         try {
             SimpleDateFormat sdf = new SimpleDateFormat();
-            Log.d("counter", Environment.getDataDirectory().getAbsolutePath());
+            Log.d("counter", "outFile:" + Environment.getDataDirectory().getAbsolutePath());
             String path = Environment.getDataDirectory().getAbsolutePath() + "/data/org.yyama.multicounter/" + counter.getFileName();
             fw = new FileWriter(path, true);
             fw.append(sdf.format(counter.getLastUpdateDateTime().getTime()) + "," + text + "," + counter.getNum() + "\n");

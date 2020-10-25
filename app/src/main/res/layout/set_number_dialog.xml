@@ -9,7 +9,7 @@
         android:id="@+id/add_counter_dialog_title"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="値を指定してください。"
+        android:text="@string/enter_an_integer"
         android:textSize="20sp"></TextView>
 
     <EditText

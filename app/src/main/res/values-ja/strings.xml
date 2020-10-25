@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">マルチカウンター</string>
+    <string name="action_settings">設定</string>
+    <string name="title_activity_goup_list">GoupListActivity</string>
+    <!-- Strings used for fragments for navigation -->
+    <string name="first_fragment_label">First Fragment</string>
+    <string name="second_fragment_label">Second Fragment</string>
+    <string name="next">次へ</string>
+    <string name="previous">前へ</string>
+
+    <string name="hello_first_fragment">Hello first fragment</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_set_number_dialog">値の設定</string>
+    <string name="privacy_policy">プライバシーポリシー</string>
+    <string name="default_counter">Counter A</string>
+    <string name="default_counter_group">Counter Group A</string>
+    <string name="enter_counter_name">名前を入力してください。</string>
+    <string name="want_to_delete_it">削除してよろしいですか？</string>
+    <string name="delete_confirmation">削除確認</string>
+    <string name="ok">OK</string>
+    <string name="cancel">キャンセル</string>
+    <string name="reset_confirmation">リセット確認</string>
+    <string name="want_to_reset_it">リセットしてよろしいですか?</string>
+    <string name="enter_an_integer">整数を入力してください。</string>
+    <string name="delete">削除</string>
+    <string name="reset">リセット</string>
+    <string name="set_value">値を設定</string>
+    <string name="rename">名前を変更</string>
+    <string name="start_recoding">記録を開始する</string>
+    <string name="stop_recoding">記録を停止する</string>
+    <string name="counter_name">カウンターの名前</string>
+    <string name="counter_group_name">カウンターグループの名前</string>
+
+
+</resources>

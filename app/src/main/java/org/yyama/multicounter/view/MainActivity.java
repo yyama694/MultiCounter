@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -17,6 +18,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 import com.google.android.material.appbar.AppBarLayout;
 
 import org.yyama.multicounter.BuildConfig;
@@ -29,12 +35,14 @@ import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
 
 import java.lang.reflect.Method;
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity implements MultiCounterActivity {
 
     private CounterGroups counterGroups;
     private CounterDao counterDao;
     CounterGroupsDao counterGroupsDao;
+    private AdView mAdView;
 
     public CounterGroups getCounterGroups() {
         return counterGroups;
@@ -44,12 +52,14 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         // SQLite初期設定
         DBHelper helper = new DBHelper(this);
-        counterGroupsDao = new CounterGroupsDao(helper);
+        counterGroupsDao = new CounterGroupsDao(this, helper);
         counterDao = new CounterDao(helper);
 
         // データロード
@@ -60,6 +70,20 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         setTitle(counterGroups.getCurrentCounterGroup().getTitle());
+
+        // ads 設定
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = findViewById(R.id.adView);
+        if (new Random().nextInt(2) == 0) {
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        } else {
+            ((ViewGroup) (mAdView.getParent())).removeView(mAdView);
+        }
     }
 
     @Override
@@ -79,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Uri uri = Uri.parse(BuildConfig.PRIVACY_POLICY_URL);
-            Intent i = new Intent(Intent.ACTION_VIEW,uri);
+            Intent i = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(i);
             return true;
         }
@@ -112,6 +136,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         counter.increment();
         TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
         textView.setText(String.valueOf(counter.getNum()));
+        if (counter.isRecording()) {
+            counterDao.outFile(counter, "increment");
+        }
     }
 
     // マイナスボタンクリック
@@ -121,13 +148,16 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         counter.decrement();
         TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
         textView.setText(String.valueOf(counter.getNum()));
+        if (counter.isRecording()) {
+            counterDao.outFile(counter, "decrement");
+        }
     }
 
     // カウンター追加ボタンクリック
     public void onClickAddBtn(View view) {
         DialogFragment df = new AddCounterDialog();
         Bundle args = new Bundle();
-        args.putString("title", "title (Counter)");
+        args.putString("title", getResources().getString(R.string.counter_name));
         df.setArguments(args);
         df.show(getSupportFragmentManager(), "aa");
     }
@@ -174,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
     public void onClickDeleteMenu(final MenuItem menuItem) {
         final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("削除してよろしいですか？").setTitle("削除確認").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.want_to_delete_it)).setTitle(getString(R.string.delete_confirmation)).setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
@@ -183,7 +213,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 AppBarLayout appBarLayout = findViewById(R.id.appBar);
                 appBarLayout.setExpanded(true, true);
             }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -195,7 +225,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
     public void onClickResetMenu(final MenuItem menuItem) {
         final CounterGroup cg = getCounterGroups().getCurrentCounterGroup();
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setMessage("値をリセットします。よろしいですか？").setTitle("リセット確認").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.want_to_reset_it)).setTitle(getString(R.string.reset_confirmation)).setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
@@ -203,8 +233,11 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 c.reset();
                 TextView textView = ((View) menuItem.getActionView().getParent().getParent()).findViewById(R.id.counter_num);
                 textView.setText(String.valueOf(c.getNum()));
+                if (c.isRecording()) {
+                    counterDao.outFile(c, "reset");
+                }
             }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -219,6 +252,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         args.putString("id", (String) ((View) menuItem.getActionView().getParent().getParent()).getTag());
         df.setArguments(args);
         df.show(getSupportFragmentManager(), "aa");
+
     }
 
     // 値を設定ダイアログのOKボタンクリック
@@ -227,6 +261,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         Counter c = cg.findByid(id);
         c.setNum(number);
         MainActivityPainter.setNumber(this, id, number);
+        if (c.isRecording()) {
+            counterDao.outFile(c, "set number");
+        }
     }
 
     // 名前の変更メニュークリック

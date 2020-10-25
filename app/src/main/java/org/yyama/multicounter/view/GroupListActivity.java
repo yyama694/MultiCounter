@@ -17,6 +17,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.initialization.InitializationStatus;
+import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
 import org.yyama.multicounter.BuildConfig;
 import org.yyama.multicounter.R;
 import org.yyama.multicounter.dao.CounterDao;
@@ -36,6 +42,7 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     private CounterGroups counterGroups;
     private CounterDao counterDao;
     CounterGroupsDao counterGroupsDao;
+    private AdView mAdView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,10 +94,11 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
 
     @Override
     public void onClickDialogAddButton(String title) {
-        Counter ct = new Counter(counterDao.getNextId(), "New Counter", 0, "", false, Calendar.getInstance());
+        String groupId = counterDao.getNextGroupId();
+        Counter ct = new Counter(counterDao.getNextId(), groupId, "New Counter", 0, "", false, Calendar.getInstance());
         List<Counter> list = new ArrayList<>();
         list.add(ct);
-        CounterGroup cg = new CounterGroup(counterDao.getNextGroupId(), title, list);
+        CounterGroup cg = new CounterGroup(groupId, title, list);
         counterGroups.addCounterGroup(cg);
         paintAll();
     }
@@ -121,14 +129,14 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     // カウンターメニューの削除クリック
     public void OnClickDeleteMenu(final MenuItem menuItem) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("削除してよろしいですか？").setTitle("削除確認").setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setMessage(getString(R.string.want_to_delete_it)).setTitle(getString(R.string.delete_confirmation)).setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
                 counterGroups.deleteCounterGroup(tag);
                 deleteGroup(tag);
             }
-        }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }
@@ -150,7 +158,7 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     public void onClickAddBtn(View view) {
         DialogFragment df = new AddCounterDialog();
         Bundle args = new Bundle();
-        args.putString("title", "title (Counter)");
+        args.putString("title", getResources().getString(R.string.counter_group_name));
         df.setArguments(args);
         df.show(getSupportFragmentManager(), "aa");
     }
@@ -189,7 +197,7 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
         Log.d("counter", "GroupListActivity#onStart");
         // SQLite初期設定
         DBHelper helper = new DBHelper(this);
-        counterGroupsDao = new CounterGroupsDao(helper);
+        counterGroupsDao = new CounterGroupsDao(this, helper);
         counterDao = new CounterDao(helper);
         counterGroups = counterGroupsDao.loadAll(counterDao);
         boolean initial = getIntent().getBooleanExtra("initial", true);
@@ -205,6 +213,14 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         paintAll();
+        MobileAds.initialize(this, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+            }
+        });
+        mAdView = findViewById(R.id.adView);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.loadAd(adRequest);
     }
 
     @Override

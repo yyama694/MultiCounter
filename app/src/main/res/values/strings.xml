@@ -12,4 +12,23 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_set_number_dialog">SetNumberDialog</string>
     <string name="privacy_policy">Privacy Policy</string>
+    <string name="default_counter">Counter A</string>
+    <string name="default_counter_group">Counter Group A</string>
+    <string name="enter_counter_name">Enter name here</string>
+    <string name="want_to_delete_it">want to delete it?</string>
+    <string name="delete_confirmation">Delete confirmation</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset_confirmation">Reset Confirmation</string>
+    <string name="want_to_reset_it">Reset. Is it OK?</string>
+    <string name="enter_an_integer">Enter an integer</string>
+    <string name="delete">Delete</string>
+    <string name="reset">Reset</string>
+    <string name="set_value">Set value</string>
+    <string name="rename">Rename</string>
+    <string name="start_recoding">Start recording</string>
+    <string name="stop_recoding">Stop recording</string>
+    <string name="counter_name">counter name</string>
+    <string name="counter_group_name">counter group name</string>
+
 </resources>

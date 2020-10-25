@@ -34,7 +34,7 @@ public class AddCounterDialog extends DialogFragment {
         Log.d("counter","title:" + s);
         title.setText(s);
         builder.setView(v)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         EditText editText = getDialog().findViewById(R.id.add_counter_edit_text);
@@ -42,7 +42,7 @@ public class AddCounterDialog extends DialogFragment {
                         MultiCounterActivity activity = (MultiCounterActivity) getActivity();
                         activity.onClickDialogAddButton(title);
                     }
-                }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
             }

@@ -28,7 +28,7 @@ public class SetNumberDialog extends DialogFragment {
         View v = inflater.inflate(R.layout.set_number_dialog, null);
         final String id = getArguments().getString("id");
         builder.setView(v)
-                .setPositiveButton("OK", null).setNegativeButton("Cancel", null);
+                .setPositiveButton(getString(R.string.ok), null).setNegativeButton(getString(R.string.cancel), null);
         final AlertDialog dialog = builder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         final Button button = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
@@ -43,7 +43,7 @@ public class SetNumberDialog extends DialogFragment {
                         EditText editText = getDialog().findViewById(R.id.set_number_edit_text);
                         String number = editText.getText().toString();
                         if (!isNumber(number)) {
-                            Toast.makeText(view.getContext(), "整数を入力してください。", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(view.getContext(), getString(R.string.enter_an_integer),Toast.LENGTH_SHORT).show();
                             editText.setText("");
                             return;
                         }

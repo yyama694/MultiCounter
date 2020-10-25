@@ -29,13 +29,13 @@ public class ChangeCounterNameDialog extends DialogFragment {
         final String beforeName = getArguments().getString("beforeName");
 
         builder.setView(v)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                .setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         TextView tv = v.findViewById(R.id.change_name_edit_text);
                         ((MultiCounterActivity)getActivity()).changeName(id,tv.getText().toString());
                     }
-                }).setNegativeButton("Cancel", null);
+                }).setNegativeButton(getString(R.string.cancel), null);
         final AlertDialog dialog = builder.create();
         dialog.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {

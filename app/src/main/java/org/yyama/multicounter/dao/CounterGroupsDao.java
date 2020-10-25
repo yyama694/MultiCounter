@@ -1,9 +1,11 @@
 package org.yyama.multicounter.dao;
 
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import org.yyama.multicounter.R;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
@@ -20,9 +22,11 @@ public class CounterGroupsDao {
     final String SELECT_COUNTERS_BY_GROUP_ID = "SELECT ID, COUNTER_GROUP_ID, NAME, NUMBER, LAST_UPDATE_DATETIME FROM TBL_COUNTER WHERE COUNTER_GROUP_ID = ? ORDER BY DISPLAY_ORDER;";
 
     private DBHelper dbHelper;
+    private Context context;
 
-    public CounterGroupsDao(DBHelper dbHelper) {
+    public CounterGroupsDao(Context context, DBHelper dbHelper) {
         this.dbHelper = dbHelper;
+        this.context = context;
     }
 
     public CounterGroups loadAll(CounterDao dao) {
@@ -35,6 +39,7 @@ public class CounterGroupsDao {
         List<CounterGroup> cgList = new ArrayList<>();
         while (groupCursor.moveToNext()) {
             Log.d("counter", "カウンターグループ作成：" + groupCursor.getString(1));
+            String groupId = groupCursor.getString(0);
 
             List<Counter> counters = new ArrayList<>();
             Cursor counterCursor = db.rawQuery(SELECT_COUNTERS_BY_GROUP_ID, new String[]{groupCursor.getString(0)});
@@ -42,22 +47,23 @@ public class CounterGroupsDao {
                 Log.d("counter", "カウンター作成：" + counterCursor.getString(2));
 
                 SimpleDateFormat sdf = new SimpleDateFormat();
+                Calendar cal = Calendar.getInstance();
+                Date d = new Date();
                 try {
-                    Calendar cal = Calendar.getInstance();
                     Log.d("counter", "getString(4):" + counterCursor.getString(4));
-                    Date d = sdf.parse(counterCursor.getString(4));
-                    cal.setTime(d);
-                    Counter counter = new Counter(counterCursor.getString(0),
-                            counterCursor.getString(2),
-                            counterCursor.getLong(3),
-                            "",
-                            false,
-                            cal);
-                    counters.add(counter);
+                    d = sdf.parse(counterCursor.getString(4));
                 } catch (ParseException e) {
                     Log.d("counter", "日付へのパース失敗。" + counterCursor.getString(4));
-                } finally {
                 }
+                cal.setTime(d);
+                Counter counter = new Counter(counterCursor.getString(0), groupId,
+                        counterCursor.getString(2),
+                        counterCursor.getLong(3),
+                        "",
+                        false,
+                        cal);
+                counters.add(counter);
+
             }
             counterCursor.close();
             CounterGroup counterGroup = new CounterGroup(groupCursor.getString(0), groupCursor.getString(1), counters);
@@ -67,11 +73,12 @@ public class CounterGroupsDao {
         db.close();
 
         if (cgList.size() == 0) {
+            String groupId = dao.getNextGroupId();
             Log.d("counter", "DBにデータ登録がないのでデフォルトグループ、デフォルトカウンターを作ります。");
-            Counter c = new Counter(dao.getNextId(), "カウンター１", 1, "", false, Calendar.getInstance());
+            Counter c = new Counter(dao.getNextId(), groupId, context.getString(R.string.default_counter), 1, "", false, Calendar.getInstance());
             List<Counter> counters = new ArrayList<>();
             counters.add(c);
-            CounterGroup cg = new CounterGroup(dao.getNextGroupId(), "counter group A", counters);
+            CounterGroup cg = new CounterGroup(dao.getNextGroupId(), context.getString(R.string.default_counter_group), counters);
             cgList = new ArrayList<>();
             cgList.add(cg);
         }
