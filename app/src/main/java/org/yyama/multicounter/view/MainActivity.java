@@ -1,8 +1,10 @@
 package org.yyama.multicounter.view;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -13,9 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.gms.ads.AdRequest;
@@ -137,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
         textView.setText(String.valueOf(counter.getNum()));
         if (counter.isRecording()) {
-            counterDao.outFile(counter, "increment");
+            counterDao.outFile(counter, "increment", this);
         }
     }
 
@@ -149,7 +154,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         TextView textView = ((View) view.getParent()).findViewById(R.id.counter_num);
         textView.setText(String.valueOf(counter.getNum()));
         if (counter.isRecording()) {
-            counterDao.outFile(counter, "decrement");
+            counterDao.outFile(counter, "decrement", this);
         }
     }
 
@@ -234,7 +239,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 TextView textView = ((View) menuItem.getActionView().getParent().getParent()).findViewById(R.id.counter_num);
                 textView.setText(String.valueOf(c.getNum()));
                 if (c.isRecording()) {
-                    counterDao.outFile(c, "reset");
+                    counterDao.outFile(c, "reset", MainActivity.this);
                 }
             }
         }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -262,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         c.setNum(number);
         MainActivityPainter.setNumber(this, id, number);
         if (c.isRecording()) {
-            counterDao.outFile(c, "set number");
+            counterDao.outFile(c, "set number", this);
         }
     }
 
@@ -286,11 +291,50 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         MainActivityPainter.reloadName(this, id, newName);
     }
 
+    // permissionの確認
+    private boolean hasPermission() {
+        return ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                PackageManager.PERMISSION_GRANTED;
+    }
+
     // 記録を開始するメニュークリック
     public void onClickStartRecording(final MenuItem menuItem) {
         String counterId = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
         Counter c = counterGroups.getCurrentCounterGroup().findByid(counterId);
-        c.startRecording();
+        if (hasPermission()) {
+            c.startRecording();
+        } else {
+            waitingForPermissionCounter = c;
+            requestLocationPermission();
+        }
+    }
+
+    private Counter waitingForPermissionCounter;
+
+    private final int REQUEST_PERMISSION = 1000;
+
+    // 許可を求める
+    private void requestLocationPermission() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_PERMISSION);
+    }
+
+    // 結果の受け取り
+    @Override
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == REQUEST_PERMISSION) {
+            // 使用が許可された
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                waitingForPermissionCounter.startRecording();
+            } else {
+                // それでも拒否された時の対応
+                Toast toast =
+                        Toast.makeText(this, "Do not have permission.", Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
     }
 
     // 記録を停止するメニュークリック
@@ -323,4 +367,6 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
             return false;
         }
     }
+
+
 }

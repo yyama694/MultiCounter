@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="0dp"
-    android:orientation="horizontal"
     android:padding="0dp">
 
     <View
@@ -23,6 +22,6 @@
         android:onClick="onClickAddBtn"
         android:padding="0dp"
         android:scaleType="fitXY"
-        android:src="@drawable/ic_add_circle1" />
+        android:src="@drawable/ic_add_circle2" />
 
 </LinearLayout>
