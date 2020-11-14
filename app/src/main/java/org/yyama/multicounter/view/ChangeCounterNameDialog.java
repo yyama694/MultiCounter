@@ -44,6 +44,7 @@ public class ChangeCounterNameDialog extends DialogFragment {
                 EditText et = v.findViewById(R.id.change_name_edit_text);
                 et.setText(beforeName);
                 et.setSelection(et.length());
+                et.selectAll();
             }
         });
         return dialog;
