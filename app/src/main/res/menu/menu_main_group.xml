@@ -1,0 +1,24 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="org.yyama.multicounter.view.MainActivity">
+    <item
+        android:id="@+id/counter_menu_start_recording"
+        android:icon="@drawable/ic_fiber_manual_record_24dp"
+        android:onClick="onClickStartRecordingGroup"
+        android:orderInCategory="100"
+        android:title="@string/start_recoding"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/counter_menu_stop_recording"
+        android:icon="@drawable/ic_pause_24dp"
+        android:onClick="onClickStopRecordingGroup"
+        android:orderInCategory="100"
+        android:title="@string/stop_recoding"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/privacy_policy"
+        app:showAsAction="never" />
+</menu>

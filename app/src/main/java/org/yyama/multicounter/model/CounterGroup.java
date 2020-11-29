@@ -1,39 +1,59 @@
 package org.yyama.multicounter.model;
 
+import android.util.Log;
+
 import org.yyama.multicounter.dao.CounterDao;
 
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 public class CounterGroup implements Serializable {
     public String getId() {
         return id;
     }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
     private String id;
     private List<Counter> counterGroup;
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     private String title;
+    private boolean recording = false;
+    private String fileName="";
 
     public CounterGroup(String id, String title, List<Counter> counterGroup) {
         this.id = id;
         this.title = title;
         this.counterGroup = counterGroup;
+        this.recording = false;
+        this.fileName="";
     }
 
+    public void startRecording() {
+        if (!isRecording()) {
+            Log.d("counter", "start recording");
+            recording = true;
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            String name = id + "_" + title + "_" + sdf.format(new Date()) + ".txt";
+            fileName = name;
+        }
+    }
+
+    public boolean isRecording() {
+        return recording;
+    }
+    public void stopRecording() {
+        recording = false;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+    public String getTitle() {
+        return title;
+    }
+    public void setTitle(String title) {
+        this.title = title;
+    }
     public List<Counter> getCounterGroup() {
         return counterGroup;
     }
@@ -73,5 +93,9 @@ public class CounterGroup implements Serializable {
             }
         }
         return result;
+    }
+
+    public String getFileName() {
+        return fileName;
     }
 }

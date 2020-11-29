@@ -93,9 +93,50 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        // ポップアップのメニューを出すための記述
+        try {
+            Method method = menu.getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
+            method.setAccessible(true);
+            method.invoke(menu, true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+        getMenuInflater().inflate(R.menu.menu_main_group, menu);
+
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // 記録開始・停止メニューの操作可否判定
+        boolean b = counterGroups.getCurrentCounterGroup().isRecording();
+        Log.d("counter", "recoding group:" + b);
+        if (b) {
+            menu.findItem(R.id.counter_menu_start_recording).setVisible(false);
+            menu.findItem(R.id.counter_menu_stop_recording).setVisible(true);
+        } else {
+            menu.findItem(R.id.counter_menu_start_recording).setVisible(true);
+            menu.findItem(R.id.counter_menu_stop_recording).setVisible(false);
+        }
+        return true;
+    }
+
+    // カウンターグループの記録を開始する
+    public void onClickStartRecordingGroup(final MenuItem menuItem) {
+        if (hasPermission()) {
+            counterGroups.getCurrentCounterGroup().startRecording();
+        } else {
+            waitingForPermissionCounterGroup = counterGroups.getCurrentCounterGroup();
+            waitingForPermissionCounter = null;
+            requestLocationPermission();
+        }
+        counterGroups.getCurrentCounterGroup().startRecording();
+    }
+
+    // カウンターグループの記録を停止する
+    public void onClickStopRecordingGroup(final MenuItem menuItem) {
+        counterGroups.getCurrentCounterGroup().stopRecording();
     }
 
     @Override
@@ -144,6 +185,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         if (counter.isRecording()) {
             counterDao.outFile(counter, "increment", this);
         }
+        if (cg.isRecording()) {
+            counterDao.outGroupFile(cg, counter, "increment", this);
+        }
     }
 
     // マイナスボタンクリック
@@ -155,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         textView.setText(String.valueOf(counter.getNum()));
         if (counter.isRecording()) {
             counterDao.outFile(counter, "decrement", this);
+        }
+        if (cg.isRecording()) {
+            counterDao.outGroupFile(cg, counter, "decrement", this);
         }
     }
 
@@ -241,6 +288,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 if (c.isRecording()) {
                     counterDao.outFile(c, "reset", MainActivity.this);
                 }
+                if (cg.isRecording()) {
+                    counterDao.outGroupFile(cg, c, "reset", MainActivity.this);
+                }
             }
         }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
@@ -257,7 +307,6 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         args.putString("id", (String) ((View) menuItem.getActionView().getParent().getParent()).getTag());
         df.setArguments(args);
         df.show(getSupportFragmentManager(), "aa");
-
     }
 
     // 値を設定ダイアログのOKボタンクリック
@@ -268,6 +317,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         MainActivityPainter.setNumber(this, id, number);
         if (c.isRecording()) {
             counterDao.outFile(c, "set number", this);
+        }
+        if (cg.isRecording()) {
+            counterDao.outGroupFile(cg, c, "set number", this);
         }
     }
 
@@ -306,11 +358,13 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
             c.startRecording();
         } else {
             waitingForPermissionCounter = c;
+            waitingForPermissionCounterGroup = null;
             requestLocationPermission();
         }
     }
 
     private Counter waitingForPermissionCounter;
+    private CounterGroup waitingForPermissionCounterGroup;
 
     private final int REQUEST_PERMISSION = 1000;
 
@@ -327,7 +381,11 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         if (requestCode == REQUEST_PERMISSION) {
             // 使用が許可された
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                waitingForPermissionCounter.startRecording();
+                if (waitingForPermissionCounter != null) {
+                    waitingForPermissionCounter.startRecording();
+                } else if (waitingForPermissionCounterGroup != null) {
+                    waitingForPermissionCounterGroup.startRecording();
+                }
             } else {
                 // それでも拒否された時の対応
                 Toast toast =

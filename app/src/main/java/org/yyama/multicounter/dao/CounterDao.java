@@ -1,17 +1,12 @@
 package org.yyama.multicounter.dao;
 
-import android.Manifest;
-import android.app.Activity;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.core.app.ActivityCompat;
 
 import org.yyama.multicounter.model.Counter;
+import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.view.MainActivity;
 
 import java.io.FileWriter;
@@ -32,14 +27,14 @@ public class CounterDao {
     }
 
     public void outFile(Counter counter, String text, MainActivity mainActivity) {
-            outFile1(counter, text, mainActivity);
+        outFile1(counter, text, mainActivity);
 
     }
 
     private void outFile1(Counter counter, String text, MainActivity mainActivity) {
         FileWriter fw = null;
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String path = mainActivity.getExternalFilesDir(Environment.getDataDirectory().toString()) + "/" + counter.getFileName();
             Log.d("counter", "path:" + path);
             fw = new FileWriter(path, true);
@@ -58,7 +53,6 @@ public class CounterDao {
             }
         }
     }
-
 
 
     private static final String SELECT_ID = "SELECT COUNTER_ID FROM TBL_SYSTEM_PARAMETER";
@@ -107,4 +101,26 @@ public class CounterDao {
     }
 
 
+    public void outGroupFile(CounterGroup cg, Counter counter, String text, MainActivity mainActivity) {
+        FileWriter fw = null;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String path = mainActivity.getExternalFilesDir(Environment.getDataDirectory().toString()) + "/" + cg.getFileName();
+            Log.d("counter", "path:" + path);
+            fw = new FileWriter(path, true);
+            fw.append(sdf.format(counter.getLastUpdateDateTime().getTime()) + "," + counter.getTitle() + "," + text + "," + counter.getNum() + "\n");
+            Log.d("counter", "ファイル書き込み完了");
+        } catch (IOException e) {
+            Log.d("counter", "outFileで例外！！");
+            e.printStackTrace();
+        } finally {
+            try {
+                if (fw != null) {
+                    fw.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
