@@ -17,20 +17,16 @@
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:layout_marginRight="15dp"
+        android:layout_marginEnd="15dp"
         android:layout_weight="0"
         android:adjustViewBounds="true"
         android:background="@drawable/state_pressed_ripple"
         android:elevation="3dp"
         android:onClick="onClickAddBtn"
-        android:paddingLeft="2dp"
+        android:paddingStart="2dp"
         android:paddingTop="8dp"
-        android:paddingRight="-20dp"
+        android:paddingEnd="-20dp"
         android:paddingBottom="-6dp"
         android:scaleType="fitXY"
         android:src="@drawable/ic_add_circle2" />
-    <!-- android:src="@drawable/ic_filter_state" -->
-    <!--        android:foreground="?android:attr/selectableItemBackground"-->
-
-
 </LinearLayout>
