@@ -2,7 +2,6 @@ package org.yyama.multicounter.view;
 
 
 import android.util.Log;
-import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -23,9 +22,19 @@ public class MainActivityPainter {
         int cnt = counterGroup.getCounterGroup().size();
         for (int i = 0; i < cnt; i++) {
             // カウンターを配置
-            LinearLayout v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter, null);
-            layout.addView(v);
             Counter counter = counterGroup.getCounterGroup().get(i);
+            LinearLayout v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter, null);
+            switch (counter.getSize().getId()) {
+                case 0:
+                    v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter_small, null);
+                    break;
+                case 1:
+                    break;
+                case 2:
+                    v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter_learge, null);
+                    break;
+            }
+            layout.addView(v);
             v.setTag(counter.getId());
             TextView textView = (TextView) v.findViewById(R.id.counter_num);
             textView.setText(String.valueOf(counter.getNum()));
@@ -43,7 +52,7 @@ public class MainActivityPainter {
         for (int i = 0; i < ll.getChildCount(); i++) {
             String tag2 = (String) ll.getChildAt(i).getTag();
 
-            Log.d("counter", "child:" + ll.getChildAt(i).getTag() + ":" + i+":"+ tag2);
+            Log.d("counter", "child:" + ll.getChildAt(i).getTag() + ":" + i + ":" + tag2);
             if (tag.equals(tag2)) {
                 ll.removeViewAt(i); // カウンター
                 ll.removeViewAt(i); //　下線
@@ -52,28 +61,28 @@ public class MainActivityPainter {
         }
     }
 
-    public static void setNumber(MainActivity activity,String id,int num) {
+    public static void setNumber(MainActivity activity, String id, int num) {
         LinearLayout ll = activity.findViewById(R.id.counter_group_linear_layout);
 
         for (int i = 0; i < ll.getChildCount(); i++) {
             String tag = (String) ll.getChildAt(i).getTag();
 
             if (id.equals(tag)) {
-                TextView tv= ll.getChildAt(i).findViewById(R.id.counter_num);
+                TextView tv = ll.getChildAt(i).findViewById(R.id.counter_num);
                 tv.setText(String.valueOf(num));
                 break;
             }
         }
     }
 
-    public static void reloadName(MainActivity activity,String id,String name) {
+    public static void reloadName(MainActivity activity, String id, String name) {
         LinearLayout ll = activity.findViewById(R.id.counter_group_linear_layout);
 
         for (int i = 0; i < ll.getChildCount(); i++) {
             String tag = (String) ll.getChildAt(i).getTag();
 
             if (id.equals(tag)) {
-                TextView tv= ll.getChildAt(i).findViewById(R.id.counter_title);
+                TextView tv = ll.getChildAt(i).findViewById(R.id.counter_title);
                 tv.setText(name);
                 break;
             }

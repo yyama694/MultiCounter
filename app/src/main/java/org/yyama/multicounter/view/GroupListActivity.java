@@ -31,6 +31,7 @@ import org.yyama.multicounter.dao.DBHelper;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
+import org.yyama.multicounter.model.CounterSize;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     @Override
     public void onClickDialogAddButton(String title) {
         String groupId = counterDao.getNextGroupId();
-        Counter ct = new Counter(counterDao.getNextId(), groupId, "New Counter", 0, "", false, Calendar.getInstance());
+        Counter ct = new Counter(counterDao.getNextId(), groupId, "New Counter", 0, "", false, Calendar.getInstance(), CounterSize.MEDIUM);
         List<Counter> list = new ArrayList<>();
         list.add(ct);
         CounterGroup cg = new CounterGroup(groupId, title, list);

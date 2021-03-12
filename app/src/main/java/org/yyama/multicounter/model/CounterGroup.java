@@ -70,7 +70,7 @@ public class CounterGroup implements Serializable {
     }
 
     public void addCounter(String title, CounterDao dao) {
-        Counter c = new Counter(dao.getNextId(), id, title, 1, "", false, Calendar.getInstance());
+        Counter c = new Counter(dao.getNextId(), id, title, 1, "", false, Calendar.getInstance(),CounterSize.MEDIUM);
         counterGroup.add(c);
     }
 

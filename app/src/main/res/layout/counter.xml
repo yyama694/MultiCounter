@@ -51,7 +51,7 @@
             android:foreground="?android:attr/selectableItemBackground"
             android:onClick="onClickBtnMinus"
             android:padding="0dp"
-            android:src="@drawable/btn_muinus" />
+            android:src="@drawable/btn_muinus_medium" />
 
         <TextView
             android:id="@+id/counter_num"
@@ -72,7 +72,7 @@
             android:foreground="?android:attr/selectableItemBackground"
             android:onClick="onClickBtnPlus"
             android:padding="0dp"
-            android:src="@drawable/btn_add" />
+            android:src="@drawable/btn_add_medium" />
 
     </LinearLayout>
 </LinearLayout>

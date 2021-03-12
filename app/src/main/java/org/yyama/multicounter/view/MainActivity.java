@@ -38,6 +38,7 @@ import org.yyama.multicounter.dao.DBHelper;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
+import org.yyama.multicounter.model.CounterSize;
 
 import java.lang.reflect.Method;
 import java.util.Random;
@@ -230,6 +231,8 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         menuItem5.setActionView(view);
         MenuItem menuItem6 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_stop_recording);
         menuItem6.setActionView(view);
+        MenuItem menuItem7 = counterMenuPopup.getMenu().findItem(R.id.counter_menu_change_size);
+        menuItem7.setActionView(view);
         // ポップアップのメニューを出すための記述
         try {
             Method method = counterMenuPopup.getMenu().getClass().getDeclaredMethod("setOptionalIconsVisible", boolean.class);
@@ -407,6 +410,44 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         super.onStop();
         Log.d("counter", "MainActivity#onStop");
     }
+
+    // サイズ変更メニュークリック
+    public void onClickChangeSize(final MenuItem menuItem) {
+        final CounterSize[] counterSizes = CounterSize.values();
+        final String[] sizes = new String[counterSizes.length];
+        sizes[0] = getResources().getString(R.string.small_size);
+        sizes[1] = getResources().getString(R.string.medium_size);
+        sizes[2] = getResources().getString(R.string.large_size);
+        String counterId = (String) ((View) menuItem.getActionView().getParent().getParent()).getTag();
+        final Counter c = counterGroups.getCurrentCounterGroup().findByid(counterId);
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.select_size)
+                .setSingleChoiceItems(sizes, c.getSize().getId(), new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int item) {
+                        setTmpSize(item);
+                    }
+                })
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) { ;
+                        c.setSize(selectedItemTmp);
+                        MainActivityPainter.paintAll(MainActivity.this);
+                        dialog.dismiss();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                })
+                .show();
+    }
+    private int selectedItemTmp;
+    private void setTmpSize(int item){
+        Log.d("counter", "item " + item + " selected");
+        selectedItemTmp = item;
+    }
+
 
     @Override
     protected void onPause() {

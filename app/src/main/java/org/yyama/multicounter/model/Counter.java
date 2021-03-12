@@ -3,7 +3,6 @@ package org.yyama.multicounter.model;
 import android.util.Log;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -15,8 +14,9 @@ public class Counter implements Serializable {
     private long num = 1;
     private String fileName;
     private boolean recording = false;
+    private CounterSize size;
 
-    public Counter(String id, String groupId, String title, long num, String fileName, boolean recording, Calendar lastUpdateDateTime) {
+    public Counter(String id, String groupId, String title, long num, String fileName, boolean recording, Calendar lastUpdateDateTime, CounterSize size) {
         this.id = id;
         this.groupId = groupId;
         this.title = title;
@@ -24,6 +24,7 @@ public class Counter implements Serializable {
         this.fileName = fileName;
         this.recording = recording;
         this.lastUpdateDateTime = lastUpdateDateTime;
+        this.size = size;
     }
 
     public String getFileName() {
@@ -71,6 +72,14 @@ public class Counter implements Serializable {
 
     public long getNum() {
         return num;
+    }
+
+    public CounterSize getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = CounterSize.getCounterSizeById(size);
     }
 
     public void setNum(long num) {

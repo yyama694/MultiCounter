@@ -30,6 +30,9 @@
     <string name="stop_recoding">記録を停止する</string>
     <string name="counter_name">カウンターの名前</string>
     <string name="counter_group_name">カウンターグループの名前</string>
-
-
+    <string name="change_size">サイズ変更</string>
+    <string name="select_size">サイズを選択してください</string>
+    <string name="large_size">大</string>
+    <string name="medium_size">中</string>
+    <string name="small_size">小</string>
 </resources>

@@ -9,6 +9,7 @@ import org.yyama.multicounter.R;
 import org.yyama.multicounter.model.Counter;
 import org.yyama.multicounter.model.CounterGroup;
 import org.yyama.multicounter.model.CounterGroups;
+import org.yyama.multicounter.model.CounterSize;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -61,7 +62,8 @@ public class CounterGroupsDao {
                         counterCursor.getLong(3),
                         "",
                         false,
-                        cal);
+                        cal,
+                        CounterSize.MEDIUM);
                 counters.add(counter);
 
             }
@@ -75,7 +77,7 @@ public class CounterGroupsDao {
         if (cgList.size() == 0) {
             String groupId = dao.getNextGroupId();
             Log.d("counter", "DBにデータ登録がないのでデフォルトグループ、デフォルトカウンターを作ります。");
-            Counter c = new Counter(dao.getNextId(), groupId, context.getString(R.string.default_counter), 1, "", false, Calendar.getInstance());
+            Counter c = new Counter(dao.getNextId(), groupId, context.getString(R.string.default_counter), 1, "", false, Calendar.getInstance(), CounterSize.MEDIUM);
             List<Counter> counters = new ArrayList<>();
             counters.add(c);
             CounterGroup cg = new CounterGroup(dao.getNextGroupId(), context.getString(R.string.default_counter_group), counters);
