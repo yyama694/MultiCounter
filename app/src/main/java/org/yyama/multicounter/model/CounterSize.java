@@ -23,7 +23,8 @@ public enum CounterSize {
             case 2:
                 return LARGE;
         }
-        return MEDIUM;
+        throw new RuntimeException("CounterSize#getCounterSizeById id が想定外です。" + String.valueOf(id));
+//        return MEDIUM;
     }
 
 }

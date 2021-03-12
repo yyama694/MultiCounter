@@ -423,6 +423,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         new AlertDialog.Builder(this)
                 .setTitle(R.string.select_size)
                 .setSingleChoiceItems(sizes, c.getSize().getId(), new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialog, int item) {
                         setTmpSize(item);
                     }

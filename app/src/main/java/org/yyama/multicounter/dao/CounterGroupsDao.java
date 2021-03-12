@@ -20,7 +20,7 @@ import java.util.List;
 
 public class CounterGroupsDao {
     final String SELECT_GROUP = "SELECT ID, NAME FROM TBL_COUNTER_GROUP ORDER BY DISPLAY_ORDER;";
-    final String SELECT_COUNTERS_BY_GROUP_ID = "SELECT ID, COUNTER_GROUP_ID, NAME, NUMBER, LAST_UPDATE_DATETIME FROM TBL_COUNTER WHERE COUNTER_GROUP_ID = ? ORDER BY DISPLAY_ORDER;";
+    final String SELECT_COUNTERS_BY_GROUP_ID = "SELECT ID, COUNTER_GROUP_ID, NAME, NUMBER, LAST_UPDATE_DATETIME,SIZE FROM TBL_COUNTER WHERE COUNTER_GROUP_ID = ? ORDER BY DISPLAY_ORDER;";
 
     private DBHelper dbHelper;
     private Context context;
@@ -63,7 +63,7 @@ public class CounterGroupsDao {
                         "",
                         false,
                         cal,
-                        CounterSize.MEDIUM);
+                        CounterSize.getCounterSizeById(counterCursor.getInt(5)));
                 counters.add(counter);
 
             }
@@ -116,7 +116,7 @@ public class CounterGroupsDao {
     }
 
     private static final String INSERT_COUNTER_GROUP = "INSERT INTO TBL_COUNTER_GROUP VALUES(?,?,?);";
-    private static final String INSERT_COUNTER = "INSERT INTO TBL_COUNTER VALUES(?,?,?,?,?,?);";
+    private static final String INSERT_COUNTER = "INSERT INTO TBL_COUNTER VALUES(?,?,?,?,?,?,?);";
 
     private void insertAll(SQLiteDatabase db, CounterGroups counterGroups) {
         for (int i = 0; i < counterGroups.getCounterGroupList().size(); i++) {
@@ -124,7 +124,15 @@ public class CounterGroupsDao {
             db.execSQL(INSERT_COUNTER_GROUP, new String[]{cg.getId(), cg.getTitle(), String.valueOf(i)});
             for (int j = 0; j < cg.getCounterGroup().size(); j++) {
                 Counter c = cg.getCounterGroup().get(j);
-                db.execSQL(INSERT_COUNTER, new String[]{c.getId(), cg.getId(), c.getTitle(), String.valueOf(j), String.valueOf(c.getNum()), new SimpleDateFormat().format(c.getLastUpdateDateTime().getTime())});
+                db.execSQL(INSERT_COUNTER,
+                        new String[]{c.getId(),
+                                cg.getId(),
+                                c.getTitle(),
+                                String.valueOf(j),
+                                String.valueOf(c.getNum()),
+                                new SimpleDateFormat().format(c.getLastUpdateDateTime().getTime()),
+                                String.valueOf(c.getSize().getId())
+                });
                 Log.d("counter", "counter 追加完了：" + c.getId() + "," + c.getTitle());
             }
             Log.d("counter", "counter group 追加完了：" + cg.getId() + "," + cg.getTitle());
