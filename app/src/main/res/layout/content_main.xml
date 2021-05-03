@@ -4,18 +4,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical">
-
         <include layout="@layout/counter" />
-
         <include layout="@layout/add_counter" />
-
-
     </LinearLayout>
-
 </androidx.core.widget.NestedScrollView>

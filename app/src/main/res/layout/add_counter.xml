@@ -1,32 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/counter_id"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="0dp"
-    android:background="#0000"
-    android:padding="0dp">
-
-    <View
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <androidx.appcompat.widget.AppCompatImageButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/btn_add_counter"
-        android:layout_width="100dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="15dp"
+        android:layout_marginBottom="20dp"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@android:color/white"
+        app:maxImageSize="60dp"
         android:layout_weight="0"
-        android:adjustViewBounds="true"
-        android:background="@drawable/state_pressed_ripple"
-        android:elevation="3dp"
-        android:onClick="onClickAddBtn"
-        android:paddingStart="2dp"
-        android:paddingTop="8dp"
-        android:paddingEnd="-20dp"
-        android:paddingBottom="-6dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_add_circle2" />
-</LinearLayout>
+        app:backgroundTint="#f595ee"
+        android:onClick="onClickAddBtn" />
