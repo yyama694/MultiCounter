@@ -20,6 +20,14 @@ public class CounterGroup implements Serializable {
     private boolean recording = false;
     private String fileName="";
 
+    public int size() {
+        return counterGroup.size();
+    }
+
+    public Counter get(int i) {
+        return counterGroup.get(i);
+    }
+
     public CounterGroup(String id, String title, List<Counter> counterGroup) {
         this.id = id;
         this.title = title;

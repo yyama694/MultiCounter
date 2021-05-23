@@ -19,16 +19,17 @@ public class MainActivityPainter {
         LinearLayout layout = (LinearLayout) activity.findViewById(R.id.counter_group_linear_layout);
         layout.removeAllViews();
         CounterGroup counterGroup = activity.getCounterGroups().getCurrentCounterGroup();
-        int cnt = counterGroup.getCounterGroup().size();
-        for (int i = 0; i < cnt; i++) {
+
+        for (int i = 0; i < counterGroup.size(); i++) {
             // カウンターを配置
-            Counter counter = counterGroup.getCounterGroup().get(i);
-            LinearLayout v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter, null);
+            Counter counter = counterGroup.get(i);
+            LinearLayout v = null;
             switch (counter.getSize().getId()) {
                 case 0:
                     v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter_small, null);
                     break;
                 case 1:
+                    v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter, null);
                     break;
                 case 2:
                     v = (LinearLayout) activity.getLayoutInflater().inflate(R.layout.counter_learge, null);
@@ -47,13 +48,9 @@ public class MainActivityPainter {
     }
 
     public static void deleteCounter(MainActivity activity, String tag) {
-        LinearLayout ll = activity.findViewById(R.id.counter_group_linear_layout);
-
+        LinearLayout ll =(LinearLayout) activity.findViewById(R.id.counter_group_linear_layout);
         for (int i = 0; i < ll.getChildCount(); i++) {
-            String tag2 = (String) ll.getChildAt(i).getTag();
-
-            Log.d("counter", "child:" + ll.getChildAt(i).getTag() + ":" + i + ":" + tag2);
-            if (tag.equals(tag2)) {
+            if (tag.equals(ll.getChildAt(i).getTag())) {
                 ll.removeViewAt(i); // カウンター
                 ll.removeViewAt(i); //　下線
                 break;
@@ -61,13 +58,10 @@ public class MainActivityPainter {
         }
     }
 
-    public static void setNumber(MainActivity activity, String id, int num) {
+    public static void setNumber(MainActivity activity, String tag, int num) {
         LinearLayout ll = activity.findViewById(R.id.counter_group_linear_layout);
-
         for (int i = 0; i < ll.getChildCount(); i++) {
-            String tag = (String) ll.getChildAt(i).getTag();
-
-            if (id.equals(tag)) {
+            if (tag.equals(ll.getChildAt(i).getTag())) {
                 TextView tv = ll.getChildAt(i).findViewById(R.id.counter_num);
                 tv.setText(String.valueOf(num));
                 break;
@@ -75,18 +69,14 @@ public class MainActivityPainter {
         }
     }
 
-    public static void reloadName(MainActivity activity, String id, String name) {
+    public static void reloadName(MainActivity activity, String tag, String name) {
         LinearLayout ll = activity.findViewById(R.id.counter_group_linear_layout);
-
         for (int i = 0; i < ll.getChildCount(); i++) {
-            String tag = (String) ll.getChildAt(i).getTag();
-
-            if (id.equals(tag)) {
+            if (tag.equals(ll.getChildAt(i).getTag())) {
                 TextView tv = ll.getChildAt(i).findViewById(R.id.counter_title);
                 tv.setText(name);
                 break;
             }
         }
     }
-
 }

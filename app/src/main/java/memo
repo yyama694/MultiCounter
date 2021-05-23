@@ -1,5 +1,1 @@
 memo
-
-・getLayoutInflater.inflate の第2メソッド　null でも良いのだけど、null　の場合と値を指定した場合、何が変わるのか？
-・Intent#setFlags の挙動を明確にしたい
-・外部プロパティ化する最善の方法は？
