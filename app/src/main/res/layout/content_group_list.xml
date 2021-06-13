@@ -16,8 +16,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <include layout="@layout/content_group_list_line" />
-
         </LinearLayout>
 
         <include layout="@layout/add_counter" />

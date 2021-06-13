@@ -7,16 +7,16 @@ android {
         applicationId "org.yyama.multicounter"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.15"
+        versionCode 19
+        versionName "1.19"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField 'String','PRIVACY_POLICY_URL',PRIVACY_POLICY_URL
 
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            // proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -34,4 +34,5 @@ dependencies {
     implementation 'com.beardedhen:androidbootstrap:2.3.2'
     implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'com.google.android.gms:play-services-ads:19.6.0'
+    implementation 'com.google.android.play:core:1.10.0'
 }

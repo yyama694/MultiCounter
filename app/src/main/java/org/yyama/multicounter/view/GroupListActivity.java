@@ -3,8 +3,10 @@ package org.yyama.multicounter.view;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.Preference;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -22,6 +24,12 @@ import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+import com.google.android.play.core.review.ReviewInfo;
+import com.google.android.play.core.review.ReviewManager;
+import com.google.android.play.core.review.ReviewManagerFactory;
+import com.google.android.play.core.review.model.ReviewErrorCode;
+import com.google.android.play.core.review.testing.FakeReviewManager;
+import com.google.android.play.core.tasks.Task;
 
 import org.yyama.multicounter.BuildConfig;
 import org.yyama.multicounter.R;
@@ -37,6 +45,7 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Random;
 
 public class GroupListActivity extends AppCompatActivity implements MultiCounterActivity {
 
@@ -83,7 +92,6 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
             ll.addView(v);
             LinearLayout v2 = (LinearLayout) getLayoutInflater().inflate(R.layout.border, null);
             ll.addView(v2);
-
 
             // 更新日付の設定
             Calendar cal = cg.getCounterLastUpdateDateTime();
@@ -247,6 +255,50 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     protected void onDestroy() {
         super.onDestroy();
         Log.d("counter", "GroupListActivity#onDestroy");
+    }
+
+    @Override
+    public void onBackPressed(){
+
+        // 評価依頼に関する処理
+        int NUM=10;
+        SharedPreferences sp = getSharedPreferences("multi_counter_preferences",MODE_PRIVATE);
+        int  numberOfBoot = sp.getInt("numberOfBoot",0);
+        numberOfBoot++;
+        Log.d("counter",String.valueOf(numberOfBoot) + " 回目の起動でした。");
+        if(numberOfBoot>=NUM) {
+            if (new Random().nextInt(2) == 0) {
+                //　評価依頼
+                Log.d("counter", "評価依頼を行います。");
+                ReviewManager manager = ReviewManagerFactory.create(this);
+                //            ReviewManager manager = new FakeReviewManager(this);
+                Task<ReviewInfo> request = manager.requestReviewFlow();
+                request.addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("counter", "task 成功");
+                        // We can get the ReviewInfo object
+                        ReviewInfo reviewInfo = task.getResult();
+                        Task<Void> flow = manager.launchReviewFlow(this, reviewInfo);
+                        flow.addOnCompleteListener(task2 -> {
+                            // The flow has finished. The API does not indicate whether the user
+                            // reviewed or not, or even whether the review dialog was shown. Thus, no
+                            // matter the result, we continue our app flow.
+                        });
+                    } else {
+                        Log.d("counter", "task 失敗");
+                        // There was some problem, log or handle the error code.
+                        // ↓例の通りやってもエラーとなるのでコメントアウト
+                        //                     @ReviewErrorCode int reviewErrorCode = ((TaskException) task.getException()).getErrorCode();
+                    }
+                });
+            }
+            numberOfBoot = 0;
+        }
+
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putInt("numberOfBoot",numberOfBoot);
+        editor.commit();
+        super.onBackPressed();
     }
 
 }

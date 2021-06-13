@@ -9,7 +9,14 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical">
-        <include layout="@layout/counter" />
+        <LinearLayout
+            android:id="@+id/counter_group_linear_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true"
+            android:orientation="vertical">
+            <include layout="@layout/counter" />
+        </LinearLayout>
         <include layout="@layout/add_counter" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>
