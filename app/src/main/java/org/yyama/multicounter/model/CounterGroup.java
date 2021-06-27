@@ -106,4 +106,11 @@ public class CounterGroup implements Serializable {
     public String getFileName() {
         return fileName;
     }
+
+    public void move(int pos1,int pos2) {
+        Counter tmp = counterGroup.get(pos1);
+
+        counterGroup.set(pos1,counterGroup.get(pos2));
+        counterGroup.set(pos2,tmp);
+    }
 }

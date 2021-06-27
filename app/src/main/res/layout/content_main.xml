@@ -9,14 +9,11 @@
         android:layout_height="wrap_content"
         android:animateLayoutChanges="true"
         android:orientation="vertical">
-        <LinearLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/counter_group_linear_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:animateLayoutChanges="true"
-            android:orientation="vertical">
-            <include layout="@layout/counter" />
-        </LinearLayout>
+            android:orientation="vertical" />
         <include layout="@layout/add_counter" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

@@ -9,11 +9,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +23,10 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
     private CounterDao counterDao;
     CounterGroupsDao counterGroupsDao;
     private AdView mAdView;
+    private RecyclerView.Adapter mAdapter;
 
     public CounterGroups getCounterGroups() {
         return counterGroups;
@@ -91,6 +96,59 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         } else {
             ((ViewGroup) (mAdView.getParent())).removeView(mAdView);
         }
+
+        // リサイクラービューの準備
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.counter_group_linear_layout);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        mAdapter = new CounterGroupAdapter(getCounterGroups().getCurrentCounterGroup(), this);
+        recyclerView.setAdapter(mAdapter);
+        RecyclerView.ItemDecoration itemDecoration =
+                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL);
+        recyclerView.addItemDecoration(itemDecoration);
+
+        // ドラックアンドドロップの操作を実装する
+        itemTouchHelper = new ItemTouchHelper(
+                // 上、下のドラッグを処理する Callback を作成する。スワイプは処理しない
+                new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN,
+                        ItemTouchHelper.ACTION_STATE_IDLE) {
+                    @Override
+                    public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                        final int fromPos = viewHolder.getAdapterPosition();
+                        final int toPos = target.getAdapterPosition();
+                        mAdapter.notifyItemMoved(fromPos, toPos);
+                        Log.d("counter", "onMove");
+                        Log.d("counter", "pos1:" + ((CounterGroupAdapter.MyViewHolder) viewHolder).pos);
+                        Log.d("counter", "pos1:" + ((CounterGroupAdapter.MyViewHolder) target).pos);
+
+                        counterGroups.getCurrentCounterGroup().move(((CounterGroupAdapter.MyViewHolder) viewHolder).pos, ((CounterGroupAdapter.MyViewHolder) target).pos);
+                        int posTmp = ((CounterGroupAdapter.MyViewHolder) viewHolder).pos;
+                        ((CounterGroupAdapter.MyViewHolder) viewHolder).pos = ((CounterGroupAdapter.MyViewHolder) target).pos;
+                        ((CounterGroupAdapter.MyViewHolder) target).pos = posTmp;
+
+                        return true;
+                    }
+
+                    @Override
+                    public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                    }
+
+                    // 行の長押しではドラッグできないようにする
+                    @Override
+                    public boolean isLongPressDragEnabled() {
+                        return false;
+                    }
+                });
+
+        // recyclerView と itemTouchHelper を紐づける
+        itemTouchHelper.attachToRecyclerView(recyclerView);
+
+    }
+
+    private ItemTouchHelper itemTouchHelper;
+
+    public ItemTouchHelper getItemTouchHelper() {
+        return itemTouchHelper;
     }
 
     @Override
@@ -265,9 +323,10 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
             public void onClick(DialogInterface dialogInterface, int i) {
                 String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
                 cg.deleteCounter(tag);
-                MainActivityPainter.deleteCounter(MainActivity.this, tag);
+//                MainActivityPainter.deleteCounter(MainActivity.this, tag);
                 AppBarLayout appBarLayout = findViewById(R.id.appBar);
                 appBarLayout.setExpanded(true, true);
+                mAdapter.notifyDataSetChanged();
             }
         }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
             @Override
@@ -431,9 +490,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 })
                 .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) { ;
+                    public void onClick(DialogInterface dialog, int which) {
                         c.setSize(selectedItemTmp);
-                        MainActivityPainter.paintAll(MainActivity.this);
+                        mAdapter.notifyDataSetChanged();
                         dialog.dismiss();
                     }
                 })
@@ -444,8 +503,10 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                 })
                 .show();
     }
+
     private int selectedItemTmp;
-    private void setTmpSize(int item){
+
+    private void setTmpSize(int item) {
         Log.d("counter", "item " + item + " selected");
         selectedItemTmp = item;
     }
