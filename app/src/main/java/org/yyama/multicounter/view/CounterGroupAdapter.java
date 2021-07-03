@@ -18,7 +18,6 @@ import org.yyama.multicounter.model.CounterGroup;
 class CounterGroupAdapter extends RecyclerView.Adapter<CounterGroupAdapter.MyViewHolder> {
     private CounterGroup counterGroup;
     private Activity activity;
-    private ViewGroup parent;
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
         public TextView counterNum;
@@ -77,44 +76,19 @@ class CounterGroupAdapter extends RecyclerView.Adapter<CounterGroupAdapter.MyVie
                 break;
         }
         MyViewHolder vh = new MyViewHolder(v);
-        this.parent = parent;
         return vh;
     }
 
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
-//        MyViewHolder newHolder = new MyViewHolder(LayoutInflater.from(activity)
-//                        .inflate(R.layout.counter_learge, parent, false));
-//        bindViewHolder(newHolder, position);
         holder.counterNum.setText(String.valueOf(counterGroup.get(position).getNum()));
         holder.counterRow.setTag(counterGroup.get(position).getId());
         holder.counterTitle.setText(counterGroup.get(position).getTitle());
         holder.pos = position;
-        Log.d("counterAdapter","itemCount num:" +String.valueOf(counterGroup.get(position).getNum()));
-        Log.d("counterAdapter","itemCount:" +getItemCount());
     }
 
     @Override
     public int getItemCount() {
         return counterGroup.size();
-    }
-
-
-    @Override
-    public void onAttachedToRecyclerView(@NonNull @NotNull RecyclerView recyclerView) {
-        super.onAttachedToRecyclerView(recyclerView);
-        Log.d("counterAdapter" ,"onAttachedToRecyclerView");
-    }
-
-    @Override
-    public void onViewAttachedToWindow(@NonNull @NotNull CounterGroupAdapter.MyViewHolder holder) {
-        super.onViewAttachedToWindow(holder);
-        Log.d("counterAdapter" ,"onViewAttachedToWindow");
-    }
-
-    @Override
-    public void onViewRecycled(@NonNull @NotNull CounterGroupAdapter.MyViewHolder holder) {
-        super.onViewRecycled(holder);
-        Log.d("counterAdapter" ,"onViewRecycled");
     }
 }

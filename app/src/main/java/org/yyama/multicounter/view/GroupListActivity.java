@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,8 +26,6 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 import com.google.android.play.core.review.ReviewInfo;
 import com.google.android.play.core.review.ReviewManager;
 import com.google.android.play.core.review.ReviewManagerFactory;
-import com.google.android.play.core.review.model.ReviewErrorCode;
-import com.google.android.play.core.review.testing.FakeReviewManager;
 import com.google.android.play.core.tasks.Task;
 
 import org.yyama.multicounter.BuildConfig;
@@ -258,15 +255,15 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
     }
 
     @Override
-    public void onBackPressed(){
+    public void onBackPressed() {
 
         // 評価依頼に関する処理
-        int NUM=10;
-        SharedPreferences sp = getSharedPreferences("multi_counter_preferences",MODE_PRIVATE);
-        int  numberOfBoot = sp.getInt("numberOfBoot",0);
+        int NUM = 10;
+        SharedPreferences sp = getSharedPreferences("multi_counter_preferences", MODE_PRIVATE);
+        int numberOfBoot = sp.getInt("numberOfBoot", 0);
         numberOfBoot++;
-        Log.d("counter",String.valueOf(numberOfBoot) + " 回目の起動でした。");
-        if(numberOfBoot>=NUM) {
+        Log.d("counter", String.valueOf(numberOfBoot) + " 回目の起動でした。");
+        if (numberOfBoot >= NUM) {
             if (new Random().nextInt(2) == 0) {
                 //　評価依頼
                 Log.d("counter", "評価依頼を行います。");
@@ -296,7 +293,7 @@ public class GroupListActivity extends AppCompatActivity implements MultiCounter
         }
 
         SharedPreferences.Editor editor = sp.edit();
-        editor.putInt("numberOfBoot",numberOfBoot);
+        editor.putInt("numberOfBoot", numberOfBoot);
         editor.commit();
         super.onBackPressed();
     }

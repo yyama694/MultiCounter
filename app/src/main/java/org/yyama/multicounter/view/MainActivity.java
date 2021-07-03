@@ -65,7 +65,6 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -117,10 +116,6 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
                         final int fromPos = viewHolder.getAdapterPosition();
                         final int toPos = target.getAdapterPosition();
                         mAdapter.notifyItemMoved(fromPos, toPos);
-                        Log.d("counter", "onMove");
-                        Log.d("counter", "pos1:" + ((CounterGroupAdapter.MyViewHolder) viewHolder).pos);
-                        Log.d("counter", "pos1:" + ((CounterGroupAdapter.MyViewHolder) target).pos);
-
                         counterGroups.getCurrentCounterGroup().move(((CounterGroupAdapter.MyViewHolder) viewHolder).pos, ((CounterGroupAdapter.MyViewHolder) target).pos);
                         int posTmp = ((CounterGroupAdapter.MyViewHolder) viewHolder).pos;
                         ((CounterGroupAdapter.MyViewHolder) viewHolder).pos = ((CounterGroupAdapter.MyViewHolder) target).pos;
@@ -161,9 +156,7 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
         } catch (Exception e) {
             e.printStackTrace();
         }
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main_group, menu);
-
         return true;
     }
 
@@ -201,25 +194,18 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             Uri uri = Uri.parse(BuildConfig.PRIVACY_POLICY_URL);
             Intent i = new Intent(Intent.ACTION_VIEW, uri);
             startActivity(i);
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
     @Override
     public boolean onSupportNavigateUp() {
-        Log.d("counter", "MainActivity#onSupportNavigateUp");
         Intent i = new Intent(this, GroupListActivity.class);
         i.setFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         i.putExtra("initial", false);
@@ -323,14 +309,9 @@ public class MainActivity extends AppCompatActivity implements MultiCounterActiv
             public void onClick(DialogInterface dialogInterface, int i) {
                 String tag = (String) ((View) (menuItem.getActionView().getParent().getParent())).getTag();
                 cg.deleteCounter(tag);
-//                MainActivityPainter.deleteCounter(MainActivity.this, tag);
                 AppBarLayout appBarLayout = findViewById(R.id.appBar);
                 appBarLayout.setExpanded(true, true);
                 mAdapter.notifyDataSetChanged();
-            }
-        }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
             }
         });
         builder.show();
